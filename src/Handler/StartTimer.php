@@ -11,34 +11,27 @@
 
 namespace Shrikeh\GuzzleMiddleware\TimerLogger\Handler;
 
+use Exception;
 use Psr\Http\Message\RequestInterface;
-use Shrikeh\GuzzleMiddleware\TimerLogger\ResponseTimeLogger\ResponseTimeLoggerInterface;
+use Shrikeh\GuzzleMiddleware\TimerLogger\Handler\Traits\HandlerStaticConstructorTrait;
 
 /**
  * Class StartHandler.
  */
-class StartTimer
+final class StartTimer
 {
-    /**
-     * @var ResponseTimeLoggerInterface
-     */
-    private $responseTimeLogger;
-
-    /**
-     * StartTimer constructor.
-     *
-     * @param ResponseTimeLoggerInterface $responseTimeLogger A logger for logging the response start
-     */
-    public function __construct(ResponseTimeLoggerInterface $responseTimeLogger)
-    {
-        $this->responseTimeLogger = $responseTimeLogger;
-    }
+    use HandlerStaticConstructorTrait;
 
     /**
      * @param RequestInterface $request The Request to start timing
      */
     public function __invoke(RequestInterface $request)
     {
-        $this->responseTimeLogger->start($request);
+        try {
+            $this->responseTimeLogger->start($request);
+        } catch (Exception $e) {
+            // Pass the exception to the handler
+            $this->exceptionHandler->handle($e);
+        }
     }
 }

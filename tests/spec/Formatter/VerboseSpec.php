@@ -1,4 +1,13 @@
 <?php
+/**
+ * @codingStandardsIgnoreStart
+ *
+ * @author       Barney Hanlon <barney@shrikeh.net>
+ * @copyright    Barney Hanlon 2017
+ * @license      https://opensource.org/licenses/MIT
+ *
+ * @codingStandardsIgnoreEnd
+ */
 
 namespace spec\Shrikeh\GuzzleMiddleware\TimerLogger\Formatter;
 
@@ -12,7 +21,7 @@ use Shrikeh\GuzzleMiddleware\TimerLogger\Timer\TimerInterface;
 
 class VerboseSpec extends ObjectBehavior
 {
-    function it_returns_a_start_level(
+    public function it_returns_a_start_level(
         TimerInterface $timer,
         RequestInterface $request
     ) {
@@ -22,7 +31,7 @@ class VerboseSpec extends ObjectBehavior
         $this->levelStart($timer, $request)->shouldReturn(LogLevel::INFO);
     }
 
-    function it_returns_a_stop_level(
+    public function it_returns_a_stop_level(
         TimerInterface $timer,
         RequestInterface $request,
         ResponseInterface $response
@@ -34,7 +43,7 @@ class VerboseSpec extends ObjectBehavior
         $this->levelStop($timer, $request, $response)->shouldReturn(LogLevel::ALERT);
     }
 
-    function it_uses_request_start_message_to_format(
+    public function it_uses_request_start_message_to_format(
         RequestStartInterface $start,
         RequestStopInterface $stop,
         TimerInterface $timer,

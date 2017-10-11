@@ -1,12 +1,14 @@
 <?php
 /**
  * @codingStandardsIgnoreStart
+ *
  * @author       Barney Hanlon <barney@shrikeh.net>
  * @copyright    Barney Hanlon 2017
  * @license      https://opensource.org/licenses/MIT
  *
  * @codingStandardsIgnoreEnd
  */
+
 namespace spec\Shrikeh\GuzzleMiddleware\TimerLogger\Formatter\Message;
 
 use PhpSpec\ObjectBehavior;
@@ -17,7 +19,7 @@ use Teapot\StatusCode;
 
 class DefaultStopMessageSpec extends ObjectBehavior
 {
-    function it_returns_a_formatted_string_when_invoked(
+    public function it_returns_a_formatted_string_when_invoked(
         TimerInterface $timer,
         RequestInterface $request,
         ResponseInterface $response

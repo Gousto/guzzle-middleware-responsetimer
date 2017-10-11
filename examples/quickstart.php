@@ -1,24 +1,29 @@
 <?php
 /**
  * @codingStandardsIgnoreStart
+ *
  * @author       Barney Hanlon <barney@shrikeh.net>
  * @copyright    Barney Hanlon 2017
  * @license      https://opensource.org/licenses/MIT
  *
  * @codingStandardsIgnoreEnd
  */
+
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise;
-use GuzzleHttp\Psr7\Request;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Shrikeh\GuzzleMiddleware\TimerLogger\Middleware;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-$logFile = __DIR__.'/logs/example.log';
-$logFile = new SplFileObject($logFile, 'w+');
+$logsPath = __DIR__.'/logs';
+if (!is_dir($logsPath)) {
+    mkdir($logsPath);
+}
+
+$logFile = new SplFileObject($logsPath.'/example.log', 'w+');
 
 // create a log channel
 $log = new Logger('guzzle');
@@ -44,14 +49,10 @@ $config = [
 // then hand the stack to the client
 $client = new Client($config);
 
-$request1 = new Request('GET', 'https://www.facebook.com');
-$request2 = new Request('GET', 'https://en.wikipedia.org/wiki/Main_Page');
-$request3 = new Request('GET', 'https://www.google.co.uk');
-
 $promises = [
-    $client->sendAsync($request1),
-    $client->sendAsync($request2),
-    $client->sendAsync($request3)
+    'facebook'  => $client->getAsync('https://www.facebook.com'),
+    'wikipedia' => $client->getAsync('https://en.wikipedia.org/wiki/Main_Page'),
+    'google'    => $client->getAsync('https://www.google.co.uk'),
 ];
 
 $results = Promise\settle($promises)->wait();

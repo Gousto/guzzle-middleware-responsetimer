@@ -21,7 +21,7 @@ use Shrikeh\GuzzleMiddleware\TimerLogger\Timer\TimerInterface;
 /**
  * Class Verbose.
  */
-class Verbose implements FormatterInterface
+final class Verbose implements FormatterInterface
 {
     /**
      * @var RequestStartInterface
@@ -66,8 +66,8 @@ class Verbose implements FormatterInterface
         $stopLevel = LogLevel::DEBUG
     ) {
         return new self(
-            new StartFormatter($start, $startLevel),
-            new StopFormatter($stop, $stopLevel)
+            StartFormatter::create($start, $startLevel),
+            StopFormatter::create($stop, $stopLevel)
         );
     }
 

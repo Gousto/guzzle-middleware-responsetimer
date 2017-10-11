@@ -20,7 +20,7 @@ use Shrikeh\GuzzleMiddleware\TimerLogger\ResponseTimeLogger\ResponseTimeLoggerIn
 /**
  * Class Middleware.
  */
-class Middleware
+final class Middleware
 {
     /**
      * @var callable
@@ -49,9 +49,12 @@ class Middleware
      */
     public static function fromResponseTimeLogger(ResponseTimeLoggerInterface $responseTimeLogger)
     {
+        /*
+         * @scrutinizer ignore-type
+         */
         return new self(
-            new StartTimer($responseTimeLogger),
-            new StopTimer($responseTimeLogger)
+            StartTimer::createFrom($responseTimeLogger),
+            StopTimer::createFrom($responseTimeLogger)
         );
     }
 

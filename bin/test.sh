@@ -13,6 +13,15 @@ function test_behat() {
   fi;
 }
 
+# Run codecept suites
+function test_codecept() {
+  local CODECEPT_BIN="${1}/codecept";
+
+  if [ -x "${CODECEPT_BIN}" ]; then
+    echo 'Running codecept...';
+    eval "${CODECEPT_BIN} run" || exit 1;
+  fi;
+}
 # Run phpspec suites
 function test_phpspec() {
   local PHPSPEC_BIN="${1}/phpspec";
@@ -49,8 +58,7 @@ function test_composer_update() {
   composer update \
   --prefer-dist \
   --optimize-autoloader \
-  --no-suggest \
-  --quiet;
+  --no-suggest;
 }
 
 # Run all local automated code checks
@@ -63,11 +71,12 @@ function test_all() {
   composer validate || exit 1;
 
   test_composer_update;
-
-  test_behat    "${BIN_DIR}";
   test_phpspec  "${BIN_DIR}";
   test_phpcs    "${BIN_DIR}" "${SRC_DIR}";
   test_phpmd    "${BIN_DIR}" "${SRC_DIR}";
+  test_behat    "${BIN_DIR}";
+  test_codecept "${BIN_DIR}";
+
 }
 
 test_all;

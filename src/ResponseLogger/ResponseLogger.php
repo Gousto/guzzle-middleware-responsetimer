@@ -11,32 +11,35 @@
 
 namespace Shrikeh\GuzzleMiddleware\TimerLogger\ResponseLogger;
 
+use Exception;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Shrikeh\GuzzleMiddleware\TimerLogger\Formatter\FormatterInterface;
+use Shrikeh\GuzzleMiddleware\TimerLogger\ResponseLogger\Exception\ResponseLogStartException;
+use Shrikeh\GuzzleMiddleware\TimerLogger\ResponseLogger\Exception\ResponseLogStopException;
 use Shrikeh\GuzzleMiddleware\TimerLogger\Timer\TimerInterface;
 
 /**
  * Class ResponseLogger.
  */
-class ResponseLogger implements ResponseLoggerInterface
+final class ResponseLogger implements ResponseLoggerInterface
 {
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     private $logger;
 
     /**
-     * @var null|\Shrikeh\GuzzleMiddleware\TimerLogger\Formatter\FormatterInterface
+     * @var FormatterInterface
      */
     private $formatter;
 
     /**
      * ResponseLogger constructor.
      *
-     * @param \Psr\Log\LoggerInterface                                           $logger    The PSR-3 logger
-     * @param \Shrikeh\GuzzleMiddleware\TimerLogger\Formatter\FormatterInterface $formatter A formatter
+     * @param LoggerInterface    $logger    The PSR-3 logger
+     * @param FormatterInterface $formatter A formatter
      */
     public function __construct(
         LoggerInterface $logger,
@@ -51,12 +54,13 @@ class ResponseLogger implements ResponseLoggerInterface
      */
     public function logStart(TimerInterface $timer, RequestInterface $request)
     {
-        $this->logger->log(
-            $this->formatter->levelStart($timer, $request),
-            $this->formatter->start($timer, $request)
-        );
+        try {
+            $this->writeStart($timer, $request);
 
-        return $this;
+            return $this;
+        } catch (Exception $e) {
+            throw ResponseLogStartException::start($e);
+        }
     }
 
     /**
@@ -67,11 +71,40 @@ class ResponseLogger implements ResponseLoggerInterface
         RequestInterface $request,
         ResponseInterface $response
     ) {
+        try {
+            $this->writeStop($timer, $request, $response);
+
+            return $this;
+        } catch (Exception $e) {
+            throw ResponseLogStopException::stop($e);
+        }
+    }
+
+    /**
+     * @param TimerInterface                     $timer   The timer to log
+     * @param \Psr\Http\Message\RequestInterface $request The Request to log
+     */
+    private function writeStart(TimerInterface $timer, RequestInterface $request)
+    {
+        $this->logger->log(
+            $this->formatter->levelStart($timer, $request),
+            $this->formatter->start($timer, $request)
+        );
+    }
+
+    /**
+     * @param TimerInterface                      $timer    The timer to log
+     * @param \Psr\Http\Message\RequestInterface  $request  The Request to log against
+     * @param \Psr\Http\Message\ResponseInterface $response The Response to log
+     */
+    private function writeStop(
+        TimerInterface $timer,
+        RequestInterface $request,
+        ResponseInterface $response
+    ) {
         $this->logger->log(
             $this->formatter->levelStop($timer, $request, $response),
             $this->formatter->stop($timer, $request, $response)
         );
-
-        return $this;
     }
 }
